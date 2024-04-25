@@ -1,12 +1,12 @@
 import java.util.Arrays;
 
-public class MaxPQ<K extends Comparable<K>> {
+public class MaxPQ<Key extends Comparable<Key>> {
 
-    private K[] priorityQueue;
+    private Key[] priorityQueue;
     private int size;
 
     public MaxPQ(int capacity) {
-        priorityQueue = (K[]) new Comparable[capacity + 1]; // Binary heap starts from index 1
+        priorityQueue = (Key[]) new Comparable[capacity + 1]; // Binary heap starts from index 1
         size = 0;
     }
 
@@ -18,7 +18,7 @@ public class MaxPQ<K extends Comparable<K>> {
         return size;
     }
 
-    public void insert(K key) {
+    public void insert(Key key) {
         if (size == priorityQueue.length - 1) {
             resize(2 * priorityQueue.length);
         }
@@ -26,11 +26,11 @@ public class MaxPQ<K extends Comparable<K>> {
         swim(size);
     }
 
-    public K delMax() {
+    public Key delMax() {
         if (isEmpty()) {
             throw new IllegalStateException("Priority queue is empty");
         }
-        K max = priorityQueue[1];
+        Key max = priorityQueue[1];
         swap(1, size--);
         sink(1);
         priorityQueue[size + 1] = null; // Avoid loitering
@@ -70,19 +70,27 @@ public class MaxPQ<K extends Comparable<K>> {
     }
 
     private void swap(int i, int j) {
-        K temp = priorityQueue[i];
+        Key temp = priorityQueue[i];
         priorityQueue[i] = priorityQueue[j];
         priorityQueue[j] = temp;
     }
 
     private void resize(int capacity) {
-        K[] temp = Arrays.copyOf(priorityQueue, capacity);
+        Key[] temp = Arrays.copyOf(priorityQueue, capacity);
         priorityQueue = temp;
     }
 
     @Override
     public String toString() {
-        return Arrays.toString(priorityQueue);
+        StringBuilder printer = new StringBuilder();
+        for (Key val : priorityQueue) {
+            if (val == null) {
+                printer.append("[]");
+            } else {
+                printer.append("[" + val + "]");
+            }
+        }
+        return printer.toString();
     }
 }
 

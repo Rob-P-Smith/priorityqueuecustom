@@ -1,88 +1,89 @@
+import java.util.Arrays;
+
 public class MinPQ<Key extends Comparable<Key>> {
 
-    private Key[] pq;
-    private int N = 0;
+    private Key[] priorityQueue;
+    private int size;
 
-    public MinPQ(){
-        pq = (Key[]) new Comparable[10];
-    }
-    public MinPQ(int MaxN) {
-        pq = (Key[]) new Comparable[MaxN + 1];
+    public MinPQ(int capacity) {
+        priorityQueue = (Key[]) new Comparable[capacity + 1];
+        size = 0;
     }
 
     public boolean isEmpty() {
-        return N == 0;
+        return size == 0;
     }
 
     public int size() {
-        return N;
+        return size;
     }
 
-    public void insert(Key v) {
-        reSize();
-        pq[++N] = v;
-        swim(N);
+    public void insert(Key key) {
+        if (size == priorityQueue.length - 1) {
+            resize(2 * priorityQueue.length);
+        }
+        priorityQueue[++size] = key;
+        swim(size);
     }
 
     public Key delMin() {
-        Key min = pq[1];
-        exch(1, N--);
-        pq[N + 1] = null;
+        if (isEmpty()) {
+            throw new IllegalStateException("Priority queue is empty");
+        }
+        Key min = priorityQueue[1];
+        swap(1, size--);
         sink(1);
+        priorityQueue[size + 1] = null; // Avoid loitering
+        if (size > 0 && size == (priorityQueue.length - 1) / 4) {
+            resize(priorityQueue.length / 2);
+        }
         return min;
-    }
-
-    private void exch(int i, int j) {
-        Key temp = pq[i];
-        pq[i] = pq[j];
-        pq[j] = temp;
-    }
-
-    private boolean less(int i, int j) {
-        return pq[i].compareTo(pq[j]) < 0;
     }
 
     private void swim(int k) {
         while ((k > 1) && (less(k / 2, k))) {
-            exch(k / 2, k);
+            swap(k / 2, k);
             k = k / 2;
         }
     }
 
     private void sink(int k) {
-        while (2 * k <= N) {
+        while (2 * k <= size) {
             int j = 2 * k;
-            if (j < N && less(j, j + 1)) {
+            if (j < size && less(j, j + 1)) {
                 j++;
             }
             if (!less(k, j)) {
                 break;
             }
-            exch(k, j);
+            swap(k, j);
             k = j;
         }
     }
 
-    private void reSize() {
-        if (pq.length - 1 == N) {
-            Key[] newPQ = (Key[]) new Comparable[pq.length * 2];
-            System.arraycopy(pq, 0, newPQ, 0, pq.length);
-            pq = newPQ;
-        } else if (pq.length <= N/3){
-            Key[] newPQ = (Key[]) new Comparable[pq.length/2];
-            System.arraycopy(pq, 0, newPQ, 0, pq.length);
-            pq = newPQ;
-        }
+    private boolean less(int i, int j) {
+        return priorityQueue[i].compareTo(priorityQueue[j]) > 0;
+    }
+
+    private void swap(int i, int j) {
+        Key temp = priorityQueue[i];
+        priorityQueue[i] = priorityQueue[j];
+        priorityQueue[j] = temp;
+    }
+
+    private void resize(int capacity) {
+        Key[] temp = Arrays.copyOf(priorityQueue, capacity);
+        priorityQueue = temp;
     }
 
     @Override
     public String toString() {
         StringBuilder printer = new StringBuilder();
-        for (Key val : pq) {
+        for (Key val : priorityQueue) {
             if (val == null) {
                 printer.append("[]");
             } else {
-                printer.append("["+val+"]");
+                printer.append("[" + val + "]");
             }
         }
         return printer.toString();
